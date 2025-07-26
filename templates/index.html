@@ -2,22 +2,67 @@
 <html>
 <head>
     <title>Todo App</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/themes.css">
 </head>
 <body>
-    <h1>Simple Todo App</h1>
+    <div class="container">
+        <h1>Simple Todo App</h1>
 
-    <form action="/create-todo" method="post">
-        <input type="text" name="item" placeholder="Enter a new todo" required>
-        <button type="submit">Add</button>
-    </form>
+        <form action="/create-todo" method="post">
+            <input type="text" name="item" placeholder="Enter a new todo" required>
+            <input type="date" name="due_date" required>
+            <button type="submit">Add</button>
+        </form>
 
-    <h2>Todo List:</h2>
-    <ul>
-        {% for todo in todos %}
-            <li>{{ todo }}</li>
-        {% else %}
-            <li>No todos yet!</li>
-        {% endfor %}
-    </ul>
+        <form action="/upcoming" method="get">
+            <button type="submit">Show Upcoming Todos</button>
+        </form>
+
+        <form action="/" method="get">
+            <button type="submit">Show All Todos</button>
+        </form>
+
+        <h2>Todo List:</h2>
+        <ul>
+            {% for todo in todos %}
+                <li style="display: flex; align-items: center; gap: 10px;">
+                    <form action="/edit-todo/{{ todo.id }}" method="post" style="display: flex; align-items: center; gap: 8px; margin: 0;" onsubmit="return saveEdit(event, '{{ todo.id }}')">
+                        <input type="text" name="item" value="{{ todo.item }}" required readonly id="item-{{ todo.id }}" style="flex: 1 1 auto; min-width: 0;">
+                        <span id="due-label-{{ todo.id }}" style="margin-left: 10px; color: #0093e9; font-size: 0.98em; font-weight: 500;">Due: {{ todo.due_date }}</span>
+                        <input type="date" name="due_date" value="{{ todo.due_date }}" required id="due-{{ todo.id }}" style="display:none;">
+                        <button type="button" onclick="enableEdit('{{ todo.id }}')" id="edit-btn-{{ todo.id }}">Edit</button>
+                        <button type="submit" style="display:none;" id="save-btn-{{ todo.id }}">Save</button>
+                    </form>
+                    <form action="/delete-todo/{{ todo.id }}" method="post" style="display:inline; margin: 0;" onsubmit="return confirm('Delete this todo?');">
+                        <input type="hidden" name="method" value="DELETE">
+                        <button type="submit">Delete</button>
+                    </form>
+                </li>
+            {% else %}
+                <li>No todos yet!</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <script>
+
+
+    function enableEdit(id) {
+        document.getElementById('item-' + id).removeAttribute('readonly');
+        document.getElementById('edit-btn-' + id).style.display = 'none';
+        document.getElementById('save-btn-' + id).style.display = 'inline-block';
+        document.getElementById('due-label-' + id).style.display = 'none';
+        document.getElementById('due-' + id).style.display = 'inline-block';
+        document.getElementById('item-' + id).focus();
+    }
+    function saveEdit(event, id) {
+        document.getElementById('item-' + id).setAttribute('readonly', true);
+        document.getElementById('edit-btn-' + id).style.display = 'inline-block';
+        document.getElementById('save-btn-' + id).style.display = 'none';
+        document.getElementById('due-label-' + id).style.display = 'inline-block';
+        document.getElementById('due-' + id).style.display = 'none';
+        return true;
+    }
+    </script>
 </body>
 </html>
