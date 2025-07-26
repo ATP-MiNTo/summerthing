@@ -5,10 +5,10 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from storage import storage
-from routes_add import router as add_router
-from routes_delete import router as delete_router
-from routes_edit import router as edit_router
-from routes_filter import router as filter_router
+from routes.add import router as add_router
+from routes.delete import router as delete_router
+from routes.edit import router as edit_router
+from routes.filter import router as filter_router
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
