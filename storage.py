@@ -8,10 +8,19 @@ class TodoStorage:
         self.counter = 1
 
     def add_todo(self, item: str, due_date: date) -> Todo:
-        todo = Todo(id=self.counter, item=item, due_date=due_date)
+        todo = Todo(id=self.counter, item=item, due_date=due_date, status="Undone")
         self.todos.append(todo)
         self.counter += 1
         return todo
+    def toggle_status(self, todo_id: int) -> bool:
+        for todo in self.todos:
+            if todo.id == todo_id:
+                todo.status = "Done" if todo.status == "Undone" else "Undone"
+                return True
+        return False
+
+    def get_by_status(self, status: str):
+        return [todo for todo in self.todos if todo.status == status]
 
     def get_all(self) -> List[Todo]:
         return self.todos

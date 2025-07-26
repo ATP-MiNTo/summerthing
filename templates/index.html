@@ -7,7 +7,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Simple Todo App</h1>
+        <h1>Todos List</h1>
 
         <form action="/create-todo" method="post">
             <input type="text" name="item" placeholder="Enter a new todo" required>
@@ -19,18 +19,28 @@
             <form action="/upcoming" method="get" style="margin: 0;">
                 <button type="submit">Show Upcoming Todos</button>
             </form>
+            {% if show_done %}
+            <form action="/undone" method="get" style="margin: 0;">
+                <button type="submit">Undone Todos</button>
+            </form>
+            {% else %}
+            <form action="/done" method="get" style="margin: 0;">
+                <button type="submit">Done Todos</button>
+            </form>
+            {% endif %}
             <form action="/" method="get" style="margin: 0;">
                 <button type="submit">Show All Todos</button>
             </form>
         </div>
-
-        <h2>Todo List:</h2>
         <ul>
             {% for todo in todos %}
-                <li style="display: flex; align-items: center; gap: 10px;">
+                <li class="todo-item {{ todo.status|lower }}" style="display: flex; align-items: center; gap: 10px; background: {{ '#FF746C' if todo.status == 'Undone' else '#B2FBA5' }};">
+                    <form action="/toggle-todo/{{ todo.id }}" method="post" style="margin: 0;">
+                        <button type="submit" class="toggle-btn">Toggle</button>
+                    </form>
                     <form action="/edit-todo/{{ todo.id }}" method="post" style="display: flex; align-items: center; gap: 8px; margin: 0;" onsubmit="return saveEdit(event, '{{ todo.id }}')">
                         <input type="text" name="item" value="{{ todo.item }}" required readonly id="item-{{ todo.id }}" style="flex: 1 1 auto; min-width: 0;">
-                        <span id="due-label-{{ todo.id }}" style="margin-left: 10px; color: #0093e9; font-size: 0.98em; font-weight: 500;">Due: {{ todo.due_date }}</span>
+                        <span id="due-label-{{ todo.id }}" style="margin-left: 10px; color: {{ 'white' if todo.status == 'Undone' else '#0093e9' }}; font-size: 0.98em; font-weight: 500;">Due: {{ todo.due_date }}</span>
                         <input type="date" name="due_date" value="{{ todo.due_date }}" required id="due-{{ todo.id }}" style="display:none;">
                         <button type="button" onclick="enableEdit('{{ todo.id }}')" id="edit-btn-{{ todo.id }}">Edit</button>
                         <button type="submit" style="display:none;" id="save-btn-{{ todo.id }}">Save</button>
@@ -46,7 +56,41 @@
         </ul>
     </div>
     <script>
-
+    // Falling star field generator
+    (function() {
+        const STAR_COUNT = 400;
+        const colors = ['#fff', '#fffbe7', '#fff8dc', '#fdf6e3'];
+        for (let i = 0; i < STAR_COUNT; i++) {
+            const star = document.createElement('div');
+            star.className = 'falling-star';
+            const size = Math.random() * 0.7 + 0.3; // smaller: 0.3px to 1.4px
+            star.style.width = size + 'px';
+            star.style.height = size + 'px';
+            star.style.left = (Math.random() * 100) + 'vw';
+            star.style.top = (-5 + Math.random() * 100) + 'vh';
+            star.style.background = colors[Math.floor(Math.random() * colors.length)];
+            star.style.opacity = (0.7 + Math.random() * 0.3).toFixed(2);
+            star.style.boxShadow = `0 0 ${Math.random()*4+1}px ${Math.random()*1.5+0.5}px ${colors[Math.floor(Math.random()*colors.length)]}`;
+            star.dataset.speed = (0.12 + Math.random() * 0.15).toFixed(2); // slower: 0.12 to 0.5
+            document.body.appendChild(star);
+        }
+        function animateStars() {
+            const stars = document.getElementsByClassName('falling-star');
+            for (let i = 0; i < stars.length; i++) {
+                let star = stars[i];
+                let top = parseFloat(star.style.top);
+                let speed = parseFloat(star.dataset.speed);
+                top += speed;
+                if (top > 105) {
+                    top = -5;
+                    star.style.left = (Math.random() * 100) + 'vw';
+                }
+                star.style.top = top + 'vh';
+            }
+            requestAnimationFrame(animateStars);
+        }
+        animateStars();
+    })();
 
     function enableEdit(id) {
         document.getElementById('item-' + id).removeAttribute('readonly');

@@ -9,6 +9,7 @@ from routes.add import router as add_router
 from routes.delete import router as delete_router
 from routes.edit import router as edit_router
 from routes.filter import router as filter_router
+from routes.toggle import router as toggle_router
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -18,6 +19,7 @@ app.include_router(add_router)
 app.include_router(delete_router)
 app.include_router(edit_router)
 app.include_router(filter_router)
+app.include_router(toggle_router)
 
 @app.get("/", response_class=HTMLResponse)
 def read_root(request: Request):
